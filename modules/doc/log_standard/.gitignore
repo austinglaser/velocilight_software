@@ -1,0 +1,6 @@
+# Latex products
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz

@@ -1,0 +1,527 @@
+
+
+\documentclass[paper=letter, fontsize=10pt]{scrartcl} % Letter paper and 11pt font size
+\usepackage{graphicx}
+\usepackage[space]{grffile}
+
+\listfiles
+
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm} % Math packages
+\usepackage{gensymb}
+\usepackage{textcomp}
+\usepackage{comment}
+\usepackage{enumerate}
+\usepackage{setspace}
+\usepackage{color}
+\usepackage{multirow}
+
+\usepackage{listings}
+
+\usepackage{bytefield}
+\definecolor{lightgray}{gray}{0.8}
+\newcommand{\bfbitwidth}{1.3em}
+
+% From http://tex.stackexchange.com/a/24133
+\makeatletter
+\newcommand*{\textoverline}[1]{$\overline{\hbox{#1}}\m@th$}
+\makeatother
+
+\usepackage[usenames,dvipsnames]{xcolor}
+
+\usepackage{sectsty} % Allows customizing section commands
+\allsectionsfont{\centering \normalfont \scshape} % Make all sections centered, the default font and small caps
+\subsectionfont{\normalfont} %Left-justify subsections
+\subsubsectionfont{\normalfont} %Left-justify subsections
+\usepackage{titlesec}
+\titleformat{\subsection}[runin] {\normalfont\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}[runin] {\normalfont\bfseries}{\thesubsubsection}{1em}{}
+
+
+\setlength{\parskip}{8pt plus 5pt minus 3pt}
+
+%\pagenumbering{gobble}
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength{\parindent}{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+
+\usepackage[margin=0.85in]{geometry}
+
+\usepackage{fancyhdr} % Custom headers and footers
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header
+%\fancyhead[L]{ \scshape{\textit{\Large{\textsc{\color{Gray}{Confidential}}}}} \hfill \scriptsize{\color{gray}{\rev}}}  
+\fancyfoot[L]{ \thepage |  Page} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{\textsc{Prepared on {\today}}} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{1pt} % Comment out to Remove footer underlines
+	\renewcommand{\footrule}{{\color{gray}%
+	\vskip-\footruleskip\vskip-\footrulewidth
+	\hrule width\headwidth height\footrulewidth\vskip\footruleskip}}
+\setlength{\headheight}{13.4pt} % Customize the height of the header
+
+\usepackage{tabularx}
+\usepackage{booktabs} %allows use of excel tables in latex
+\usepackage{pdfpages}
+\usepackage{csquotes}
+
+\usepackage{hyperref}
+\begin{document}
+
+\renewcommand{\arraystretch}{1.5}
+
+\newcommand{\hreffoot}[2]{\href{#1}{#2}\footnote{#1}}
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+\normalfont \normalsize 
+{\hfill
+\includegraphics[scale=0.1]{images/bexigon_light.png} \\[1pt] % Your university, school and/or department name(s)
+}
+\horrule{0.5pt} \\[.2cm] % Thin top horizontal scrule
+{\centering 
+	\sc \LARGE Logging Format Standard \\
+    \sc Boulder Engineering Studio Internal\\
+}
+\horrule{0.5pt} \\[0.1cm] % Thick bottom horizontal rule
+\\ [5pt]
+\\  [5pt]
+
+\begin{table}[ht!]
+    \begin{center}
+        \begin{tabularx}{\textwidth}{|l|l|X|}
+            \hline
+            \emph{Date} & \emph{Author} & \emph{Notes}                                                               \\ \hline
+            2016-01-15  & Austin Glaser & Initial Draft                                                              \\ \hline
+            2016-03-12  & Austin Glaser & Add 'Runtime Error' log type                                               \\ \hline
+            2016-03-14  & Austin Glaser & Modify 'Entry Length' field definition, modify padding length field widths \\ \hline
+            2016-03-29  & Austin Glaser & Add new logo, update title block                                           \\ \hline
+        \end{tabularx}
+        \caption{Revision History.}
+        \label{tab:revision}
+    \end{center}
+\end{table}
+
+\tableofcontents
+
+\clearpage
+
+\section{Introduction} \label{sec:introduction}
+
+\subsection{Scope} \label{sec:scope}
+
+This document specifies a standard data format for logging events to an
+arbitrary section of nonvolatile memory. It does not specify the type of memory,
+or the interface protocol. It also does not specify the software API used -- for
+that, consult either a separate document or the software's internal
+documentation.
+
+\subsection{Purpose} \label{sec:purpose}
+
+This data format is intended to be used as a standard across all BES projects
+where some form of logging is desirable, but which are not high-level enough to
+include an on board filesystem with high-capacity, persistent storage. It is
+intended to be simple to implement and consume little memory relative to a
+'standard' logging protocol which saves raw text.
+
+It's also intended to be flexible, with the ability to log certain events using
+as little of 16 bytes of storage space. It also provides the ability to spend
+more data and record more detail of program state at the time of the event, an
+arbitrary string, or binary data.
+
+\section{Terminology} \label{sec:terminology}
+
+See table \ref{tab:terminology} for definitions of terms used throughout this
+document. \textbf{TODO: There probably should be more here.}
+
+\begin{table}[ht!]
+    \begin{center}
+        \begin{tabularx}{\textwidth}{|l|X|}
+            \hline
+            \emph{Term}           & \emph{Definition}                                                                          \\ \hline
+            \textbf{Entry}        & A piece of data in the log recording the occurrence of a particular event                  \\ \hline
+            \textbf{Log}          & A section of memory set aside to store data according to this standard                \\ \hline
+            \textbf{Logger}       & A software utility which stores information to a log in accordance with this standard \\ \hline
+            \textbf{Log Header}   & The section of the log allocated to storing log metadata                                   \\ \hline
+        \end{tabularx}
+        \caption{Definition of terms used within this document.}
+        \label{tab:terminology}
+    \end{center}
+\end{table}
+
+All stored numbers shall be in little-endian format. All stored addresses shall
+be offsets from the beginning of the log memory. All lengths shall be in bytes.
+
+\section{Log Header} \label{sec:lh}
+
+\subsection{Description} \label{sec:lh:desc}
+
+Each log shall begin with a data section encoding metadata relevant to the log
+as a whole, referred to as the 'log header'. This log header shall reside at the
+lowest addresses of the memory set aside for the log, and shall occupy 64 bytes.
+If the memory used for logging only supports page-sized operation, the log
+entries shall start at the next page boundary after the end of the header.
+
+The log header shall contain the following information:
+
+\begin{itemize}
+    \item{Full git revision hash at the time of compilation}
+    \item{Build date}
+    \item{Flags:}
+        \begin{itemize}
+            \item{Dirty (D) -- shall be set if the git repository was 'dirty' at
+                  build time}
+              \item{Not Stable (\textoverline{S}) -- shall be set if the
+                    firmware was not pinned at a stable release at build time.
+                    Will never be cleared when D is set}
+        \end{itemize}
+    \item{Project ID}
+    \item{Stable version (if D and \textoverline{S} flags are both cleared)}
+    \item{Log data address}
+\end{itemize}
+
+The logger shall verify this information at each system reset and, if any has
+changed, shall update the log header \emph{and remove all currently stored log
+entries}.  \textbf{Everyone, is this desireable behavior?}
+
+\subsection{Data Format} \label{sec:lh:df}
+
+\newcommand{\magicnumberhx}{0x6C6F67}
+\newcommand{\versionhx}{0x01}
+
+See table \ref{tab:lh:df} for a description of data layout in memory.
+
+The \emph{Project ID} field shall correspond to BES's internal project numbering
+system. The major and minor firmware version numbers shall only be considered
+valid if both the \emph{D} and \emph{\textoverline{S}} flags are cleared.
+
+The \emph{Git Hash} field shall be the binary encoding of the full 40-character
+hash associated with a git commit. Since this hash is a hexadecimal number, it
+can be stored in 20 bytes of memory.
+
+The \emph{Build Timestamp} field shall be a unix epoch timestamp indicating when
+the software was compiled. It shall be stored in 64-bit form to avoid the 2030
+rollover issue.
+
+The \emph{Log Start} field is the address at which valid log data starts. This
+may be the address immediately following the header (0x0000 0040), or it may be
+the beginning of the next writeable page of memory.
+
+The \emph{Log End} field is one more than the last valid address for the log
+memory region. That is, if the last address in the log region is 0x0000 0FFF,
+\emph{Log End} shall be 0x000 1000.
+
+\begin{table}[ht!]
+    \begin{center}
+        \begin{bytefield}[endianness=big, bitwidth=\bfbitwidth, leftcurly=., rightcurlyspace=0pt]{32}
+            \bitheader{0-31} \\
+            \begin{leftwordgroup}{0x0000 0000}
+                \bitbox{24}{Magic number (\magicnumberhx)} &
+                \bitbox{8}{Spec Version (\versionhx)}
+            \end{leftwordgroup} \\
+            \begin{leftwordgroup}{0x0000 0004}
+                \wordbox[tlr]{1}{}
+            \end{leftwordgroup} \\
+            \wordbox[lr]{3}{Git Hash} \\
+            \begin{leftwordgroup}{0x0000 0014}
+                \wordbox[blr]{1}{}
+            \end{leftwordgroup} \\
+            \begin{leftwordgroup}{0x0000 0018}
+                \wordbox[tlr]{1}{\strut\smash{\lower 1em \hbox{Build Timestamp}}}
+            \end{leftwordgroup} \\
+            \begin{leftwordgroup}{0x0000 001C}
+                \wordbox[blr]{1}{}
+            \end{leftwordgroup} \\
+           \begin{leftwordgroup}{0x0000 0020}
+               \bitbox{1}{D} &
+               \bitbox{1}{\textoverline{S}} &
+               \bitbox{2}{\color{lightgray}\rule{\width}{\height}}
+               \bitbox{12}{Project ID} &
+               \bitbox{8}{Major version} &
+               \bitbox{8}{Minor version}
+           \end{leftwordgroup} \\
+            \begin{leftwordgroup}{0x0000 0024}
+                \wordbox{1}{Log Start}
+            \end{leftwordgroup} \\
+            \begin{leftwordgroup}{0x0000 0028}
+                \wordbox{1}{Log End}
+            \end{leftwordgroup} \\
+            \begin{leftwordgroup}{0x0000 002C}
+                \wordbox[tlr]{1}{}
+            \end{leftwordgroup} \\
+            \wordbox[lr]{3}{Reserved} \\
+            \begin{leftwordgroup}{0x0000 003C}
+                \wordbox[blr]{1}{}
+            \end{leftwordgroup} \\
+        \end{bytefield}
+        \caption{Data format used to store the log header. Address values are
+        offsets from log region base address.}
+        \label{tab:lh:df}
+    \end{center}
+\end{table}
+
+\section{Log Bookkeeping} \label{sec:lb}
+
+\subsection{Description} \label{sec:lb:desc}
+
+The log shall begin at the \emph{Log Start}, and shall extend to \emph{Log End}
+(both stored in the log header, described in section \ref{sec:lh}).
+
+The log shall function as a circular buffer. Log entries (section \ref{sec:le})
+shall be inserted into available memory sequentially, aligned to word (4-byte)
+boundaries.
+
+\subsection{Data Format} \label{sec:lb:df}
+
+See table \ref{tab:lb:df} for a description of how bookkeeping data are stored
+in memory.
+
+The first 16 bytes of the log shall be reserved for bookkeeping data. This
+consists of two pointers, \emph{Head} and \emph{Tail}. \emph{Head} shall be the
+address of the next valid location for insertion. \emph{Tail} shall be the
+address of the oldest stored log entry, or shall be equal to \emph{Head} if no
+log entries are stored. When the log is empty, both \emph{Head} and \emph{Tail}
+shall be equal to \emph{Log Start} + 16. At no time will either head or tail be
+less than \emph{Log Start} + 16 or greater than or equal to \emph{Log End}.
+
+The bookkeeping data shall always reside at the address pointed to by \emph{Log
+Start}.
+
+New log entries shall be inserted at \emph{Head}.
+
+When inserting a new log entry, the logger shall first verify that there is
+space available. Space is available if the space between \emph{Head} and
+\emph{Tail} (wrapped around the end of the memory region) is greater than
+\emph{Entry Length}.
+
+If there is no space available, the logger shall remove log entries by moving
+\emph{Tail} to the start of the first entry where this condition is met.
+
+The logger shall then write the log entry into memory at \emph{Insertion Point},
+and shall set \emph{Head} to the next word beyond the end of the new log entry.
+
+In order to avoid memory corruption, the logger shall always perform these steps
+in the following order:
+
+\begin{enumerate}
+    \item{If needed, move \emph{Tail} to remove old log entries and make space for the new one}
+    \item{Write the new log entry at \emph{Head}}
+    \item{Move \emph{Head} to its new position}
+\end{enumerate}
+
+\begin{table}[ht!]
+    \begin{center}
+        \begin{bytefield}[endianness=big, bitwidth=\bfbitwidth, leftcurly=., rightcurlyspace=0pt]{32}
+            \bitheader{0-31} \\
+            \begin{leftwordgroup}{0x0000 0000}
+                \wordbox{1}{Head}
+            \end{leftwordgroup} \\
+            \begin{leftwordgroup}{0x0000 0004}
+                \wordbox{1}{Tail}
+            \end{leftwordgroup} \\
+            \begin{leftwordgroup}{0x0000 0008}
+                \wordbox[tlr]{1}{\strut\smash{\lower 1em \hbox{Reserved}}}
+            \end{leftwordgroup} \\
+            \begin{leftwordgroup}{0x0000 000C}
+                \wordbox[blr]{1}{}
+            \end{leftwordgroup} \\
+        \end{bytefield}
+        \caption{Format used to record log bookkeeping data. Address values are
+                 offsets from \emph{Log Start}.}
+        \label{tab:lb:df}
+    \end{center}
+\end{table}
+
+\section{Log Entry} \label{sec:le}
+
+\subsection{Description} \label{sec:le:desc}
+
+A log entry is a data structure which encodes the occurrence of a single event.
+Unlike the other data formats, several fields are optional. At minimum, a log
+shall include a length, a timestamp, and a type, which will together occupy 16
+bytes.
+
+\subsection{Data Format} \label{sec:le:df}
+
+See table \ref{tab:le:df} for a description of a log entry's layout in memory.
+
+The \emph{Entry Length} shall be the total length of the log entry (including
+the \emph{Entry Length} field) in bytes. \emph{Entry Length} shall never be the
+reserved value 0xFFFF FFFF.
+
+The \emph{Timestamp} shall be either a UTC Unix epoch timestamp (if the \emph{R}
+bit is cleared) or a relative (system time) timestamp from system reset (if the
+\emph{R} bit is set). Absolute timestamps are preferred for systems which
+include an RTC.
+
+The \emph{Entry Type} is a field with standard log types defined in table
+\ref{tab:le:et}. There is also a range of values set aside for arbitrary use.
+Note that all (non-extended) ASCII characters fall into the user-defined range.
+
+\begin{table}[ht!]
+    \begin{center}
+        \begin{tabularx}{\textwidth}{|l|l|X|}
+            \hline
+            \emph{Entry Type} & \emph{Field Value} & \emph{Notes}                                   \\ \hline
+            User defined      & 0x00 - 0x7F        & Can be used to indicate user-defined log types \\ \hline
+            Reset             & 0x80               &                                                \\ \hline
+            Exception         & 0x81               &                                                \\ \hline
+            Runtime Error     & 0x82               & Subtype will indicate the error type           \\ \hline
+            State Change      & 0x83               & Subtype will indicate the \emph{entered} state \\ \hline
+            Reserved          & 0x84 - 0xFF        & May be used in later versions of this standard \\ \hline
+        \end{tabularx}
+        \caption{Entry type codes}
+        \label{tab:le:et}
+    \end{center}
+\end{table}
+
+The \emph{Entry Subtype} field has meaning dependent on the particular entry type;
+see table \ref{tab:le:est} for more details.
+
+\begin{table}[ht!]
+    \begin{center}
+        \begin{tabularx}{\textwidth}{|l|l|l|X|}
+            \hline
+            \emph{Entry Type}               & \emph{Entry Subtype}      & \emph{Field Value} & \emph{Notes}                                                       \\ \hline
+            \multirow{7}{*}{Reset}          & User defined              & 0x00-0x7F          &                                                                    \\ \cline{2-4}
+            \textbf{}                       & Unknown Reset             & 0x80               & Can be used where subtype discrimination is not important          \\ \cline{2-4}
+            \textbf{}                       & Power Reset               & 0x81               &                                                                    \\ \cline{2-4}
+            \textbf{}                       & Software Reset            & 0x82               &                                                                    \\ \cline{2-4}
+            \textbf{}                       & Watchdog Reset            & 0x83               &                                                                    \\ \cline{2-4}
+            \textbf{}                       & Reserved                  & 0x84-0xFF          & May be used in later versions of this standard                     \\ \hline
+            \multirow{8}{*}{Exception}      & User defined              & 0x00-0x7F          &                                                                    \\ \cline{2-4}
+            \textbf{}                       & Unknown Exception         & 0x80               & Can be used where subtype discrimination is not important          \\ \cline{2-4}
+            \textbf{}                       & Stack Overflow            & 0x81               &                                                                    \\ \cline{2-4}
+            \textbf{}                       & Hard Fault                & 0x82               &                                                                    \\ \cline{2-4}
+            \textbf{}                       & Bus Fault                 & 0x83               &                                                                    \\ \cline{2-4}
+            \textbf{}                       & Usage Fault               & 0x84               &                                                                    \\ \cline{2-4}
+            \textbf{}                       & Reserved                  & 0x85-0xFF          & May be used in later versions of this standard                     \\ \hline
+            \multirow{10}{*}{Runtime Error} & User defined              & 0x00-0x7F          &                                                                    \\ \cline{2-4}
+            \textbf{}                       & Unknown Runtime error     & 0x80               & Can be used where subtype discrimination is not important          \\ \cline{2-4}
+            \textbf{}                       & Invalid Log Type          & 0x81               & Can be used by logger implementation to signal an invalid log call \\ \cline{2-4}
+            \textbf{}                       & Invalid Log Subtype       & 0x82               & Can be used by logger implementation to signal an invalid log call \\ \cline{2-4}
+            \textbf{}                       & Invalid Argument          & 0x83               &                                                                    \\ \cline{2-4}
+            \textbf{}                       & Buffer Overflow           & 0x84               &                                                                    \\ \cline{2-4}
+            \textbf{}                       & Memory Allocation Failure & 0x85               &                                                                    \\ \cline{2-4}
+            \textbf{}                       & Reserved                  & 0x86-0xFF          & May be used in later versions of this standard                     \\ \hline
+            \multirow{2}{*}{All others}     & User defined              & 0x00-0x7F          &                                                                    \\ \cline{2-4}
+            \textbf{}                       & Reserved                  & 0x80-0xFF          & May be used in later versions of this standard                     \\ \hline
+        \end{tabularx}
+        \caption{Entry subtype codes}
+        \label{tab:le:est}
+    \end{center}
+\end{table}
+
+The bits \emph{PC}, \emph{SP}, \emph{SU}, \emph{DSC}, and \emph{BIN}
+(collectively known as the '\emph{Field Bits}') indicate which optional fields
+are present after the mandatory fields. Because these fields are optional, and
+because some of the fields are variable length, their offsets are non-constant.
+The logger shall place fields which are present  in the order they are listed in
+table \ref{tab:le:df}, leaving no padding where optional fields are not present.
+If no fields are present, the \emph{Field Bits} shall all be cleared and
+\emph{Entry Length} shall be 16.
+
+The \emph{BIN} member of the \emph{Field Bits} shall be set if one or more
+\emph{Binary Data} fields are present in the log entry.
+
+The \emph{Program Counter} field shall be used to record execution state at the
+time of the entry. Note that this will be the value of the program counter
+immediately before a call to any log function (usually retrieved by examining
+the link register).
+
+The \emph{Stack Pointer} field shall be used to record the immediate value of
+the stack pointer at the time of the entry.
+
+The \emph{Maximum Stack Usage} field shall be used to record the greatest amount
+of stack allocated up to the time of the entry.
+
+If this is used on a system with multiple threads (and hence multiple stack
+pointers and program counters), it may be useful to omit the three preceding
+fields and instead record the information in several \emph{Binary Data} fields.
+
+The \emph{Descriptor String} variable-length field shall begin with a length
+(\emph{Descriptor String Length}) which indicates the number of bytes in
+\emph{Descriptor String Body} (including padding). The length shall always be
+aligned to a word boundary (a multiple of 4), but the highest-order byte of the
+length (\emph{DPB}) indicate the number of zero padding bytes at the end of the
+data block.
+
+The binary data section shall be made up of one or more \emph{Binary Data}
+variable length fields (see description below). The \emph{Binary Data Count}
+field indicates the number of subsequent \emph{Binary Data} entries.
+
+Each \emph{Binary Data} variable-length field shall begin with a length
+(\emph{Binary Data Length}) which indicates the number of bytes in \emph{Binary
+Data Body} (including padding). The length shall always be aligned to a word
+boundary (a multiple of 4), but the highest-order byte of the length
+(\emph{BPB}) indicate the number of zero padding bytes at the end of the data
+block. The \emph{Binary Data Type} field may be left zeroed, or may be used as a
+user-defined discriminator between different data points.
+
+\begin{table}[ht!]
+    \begin{center}
+        \begin{bytefield}[endianness=big, bitwidth=\bfbitwidth, leftcurly=., rightcurlyspace=0pt]{32}
+            \bitheader{0-31} \\
+            \begin{rightwordgroup}{Mandatory \\ Fields}
+                \begin{leftwordgroup}{0x0000 0000}
+                    \wordbox{1}{Entry Length}
+                \end{leftwordgroup} \\
+                \begin{leftwordgroup}{0x0000 0004}
+                    \bitbox{1}{R} &
+                    \bitbox[tlr]{31}{\strut\smash{\lower 1em \hbox{Timestamp}}}
+                \end{leftwordgroup} \\
+                \begin{leftwordgroup}{0x0000 0008}
+                    \wordbox[blr]{1}{}
+                \end{leftwordgroup} \\
+                \begin{leftwordgroup}{0x0000 000C}
+                    \bitbox{1}{\rotatebox{90}{\small PC}} &
+                    \bitbox{1}{\rotatebox{90}{\small SP}} &
+                    \bitbox{1}{\rotatebox{90}{\small SU}} &
+                    \bitbox{1}{\rotatebox{90}{\small DSC}} &
+                    \bitbox{1}{\rotatebox{90}{\small BIN}} &
+                    \bitbox{11}{\color{lightgray}\rule{\width}{\height}} &
+                    \bitbox{8}{Entry Type} &
+                    \bitbox{8}{Entry Subtype}
+                \end{leftwordgroup}
+            \end{rightwordgroup} \\
+            \begin{rightwordgroup}{Only if PC set}
+                \wordbox{1}{Program Counter}
+            \end{rightwordgroup} \\
+            \begin{rightwordgroup}{Only if SP set}
+                \wordbox{1}{Stack Pointer}
+            \end{rightwordgroup} \\
+            \begin{rightwordgroup}{Only if SU set}
+                \wordbox{1}{Maximum Stack Usage}
+            \end{rightwordgroup} \\
+            \begin{rightwordgroup}{Descriptor String \\ Only if DSC set}
+                \bitbox{8}{DPB} &
+                \bitbox{8}{\color{lightgray}\rule{\width}{\height}} &
+                \bitbox{16}{Descriptor String Length} \\
+                \wordbox[tlr]{2}{Descriptor String Body} \\
+                \bitbox[blr]{16}{} & \bitbox{16}{String Padding (0x00)}
+            \end{rightwordgroup} \\
+            \begin{rightwordgroup}{Binary Data \\ Only if BIN set}
+                \wordbox{1}{Binary Data Count} \\
+                \bitbox{8}{BPB} &
+                \bitbox{8}{Binary Data Type} &
+                \bitbox{16}{Binary Data Length} \\
+                \wordbox[tlr]{2}{Binary Data Body} \\
+                \bitbox[blr]{16}{} & \bitbox{16}{Data Padding (0x00)} \\
+                \wordbox[]{1}{$\cdots$} \\
+                \bitbox{8}{BPB} &
+                \bitbox{8}{Binary Data Type} &
+                \bitbox{16}{Binary Data Length} \\
+                \wordbox[tlr]{2}{Binary Data Body} \\
+                \bitbox[blr]{16}{} & \bitbox{16}{Data Padding (0x00)}
+            \end{rightwordgroup}
+        \end{bytefield}
+        \caption{Format used to store a log entry.}
+        \label{tab:le:df}
+    \end{center}
+\end{table}
+
+\end{document}

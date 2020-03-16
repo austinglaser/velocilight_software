@@ -1,0 +1,14 @@
+# Build directories
+build*/
+# Eclipse project files
+.project
+.cproject
+# Qt Creator project files 
+*.creator 
+*.config 
+*.files 
+*.includes 
+*.creator.user
+
+# Core dumps from segfaults
+core

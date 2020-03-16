@@ -1,0 +1,19 @@
+before_script: 
+  - sudo apt-get -y update
+  - sudo apt-get -y install build-essential
+  - sudo apt-get remove -y --purge python-pip
+  - curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+  - python get-pip.py --user --force-reinstall
+  - pip install --user docopt==0.6.1
+  - pip install --user pyyaml
+  - wget -O ruby-install-0.6.0.tar.gz https://github.com/postmodern/ruby-install/archive/v0.6.0.tar.gz
+  - tar -xzvf ruby-install-0.6.0.tar.gz 
+  - sudo make install -C ruby-install-0.6.0/
+  - sudo ruby-install --latest 
+  - sudo gem install ceedling
+  - sudo apt-get install -y libx32gcc-4.8-dev -y 
+  - sudo apt-get install -y libc6-dev-i386
+ 
+test: 
+  script:
+    - make test

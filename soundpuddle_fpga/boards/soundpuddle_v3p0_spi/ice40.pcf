@@ -1,0 +1,113 @@
+set_io clk 20
+
+set_io B0_C          82
+set_io B0_LE0        83
+set_io B0_LE1        84
+set_io B0_S00_S09_D  73
+set_io B0_S01_S10_D  93
+set_io B0_S02_S11_D  75
+set_io B0_S03_S12_D  74
+set_io B0_S04_S13_D  78
+set_io B0_S05_S14_D  76
+set_io B0_S06_S15_D  80
+set_io B0_S07_S16_D  79
+set_io B0_S08_S17_D  81
+
+#set_io B0_C6        87
+#set_io B0_D6        85
+#set_io B0_C7        90
+#set_io B0_D7        88
+
+set_io B1_C          102
+set_io B1_LE0        106
+set_io B1_LE1        105
+set_io B1_S18_S27_D  94
+set_io B1_S19_S28_D  91
+set_io B1_S20_S29_D  95
+set_io B1_S21_S30_D  96
+set_io B1_S22_S31_D  97
+set_io B1_S23_S32_D  98
+set_io B1_S24_S33_D  99
+set_io B1_S25_S34_D  101
+set_io B1_S26_S35_D  104
+
+set_io B2_C          118
+set_io B2_LE0        120
+set_io B2_LE1        119
+set_io B2_S36_S45_D  107
+set_io B2_S37_S46_D  128
+set_io B2_S38_S47_D  112
+set_io B2_S39_S48_D  110
+set_io B2_S40_S49_D  114
+set_io B2_S41_S50_D  113
+set_io B2_S42_S51_D  116
+set_io B2_S43_S52_D  115
+set_io B2_S44_S53_D  117
+
+#set_io B2_C6        122
+#set_io B2_D6        121
+#set_io B2_C7        125
+#set_io B2_D7        124
+
+set_io B3_C          142
+set_io B3_LE0        144
+set_io B3_LE1        143
+set_io B3_S54_S63_D  130
+set_io B3_S55_S64_D  129
+set_io B3_S56_S65_D  135
+set_io B3_S57_S66_D  134
+set_io B3_S58_S67_D  137
+set_io B3_S59_S68_D  136
+set_io B3_S60_S69_D  139
+set_io B3_S61_S70_D  138
+set_io B3_S62_S71_D  141
+
+set_io spi1_miso     67
+set_io spi1_mosi     68
+set_io spi1_sck      70
+
+set_io spi4_miso     47
+set_io spi4_mosi     45
+set_io spi4_sck      48
+
+# PG5
+set_io b0_b2_act     1
+# PD11
+set_io b1_b3_act     2
+
+# PD12
+set_io s00_act       3
+# PD13
+set_io s01_act       4
+# PE3
+set_io s02_act       7
+# PD5
+set_io s03_act       8
+# PE10
+set_io s04_act       9
+# PE9
+set_io s05_act       10
+# PE8
+set_io s06_act       11
+# PE7
+set_io s07_act       12
+# PD1
+set_io s08_act       15
+# PD0
+set_io s09_act       16
+# PD15
+set_io s10_act       17
+# PD14
+set_io s11_act       18
+# PD7
+set_io s12_act       19
+# PF0
+set_io s13_act       21
+# PF1
+set_io s14_act       22
+# PF2
+set_io s15_act       23
+# PF3
+set_io s16_act       24
+# PF4
+set_io s17_act       25

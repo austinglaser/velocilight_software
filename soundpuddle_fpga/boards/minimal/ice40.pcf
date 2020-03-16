@@ -1,0 +1,7 @@
+set_io clk 20
+
+set_io d00 18
+
+set_io ne1 19
+set_io noe 37
+set_io nwe 8
