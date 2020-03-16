@@ -1,4 +1,0 @@
-StripDriver
-===========
-
-Software for StripDriver
